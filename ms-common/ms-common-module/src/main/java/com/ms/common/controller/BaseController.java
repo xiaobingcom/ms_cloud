@@ -69,7 +69,7 @@ public class BaseController {
      * @return 操作结果
      */
     protected R toAjax(int rows) {
-        return rows > 0 ? R.ok() : R.fail();
+        return rows > 0 ? R.success() : R.failed();
     }
 
     /**
@@ -79,7 +79,7 @@ public class BaseController {
      * @return 操作结果
      */
     protected R toAjax(Boolean rows) {
-        return rows ? R.ok() : R.fail();
+        return rows ? R.success() : R.failed();
     }
 
 }

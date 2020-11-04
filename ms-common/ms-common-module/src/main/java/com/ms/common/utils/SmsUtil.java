@@ -93,7 +93,7 @@ public class SmsUtil {
 //                if (true) {
 //                    redisTemplate.opsForValue().set(phone + "code", "123456" + "-" + System.currentTimeMillis(), 15, TimeUnit.MINUTES);
 //                }
-                    return R.ok();
+                    return R.success();
                 } else if ("isv.BUSINESS_LIMIT_CONTROL".equals(strings[1])) {
                     return R.setToCode(ResultCode.BUSINESS_LIMIT_CONTROL);
                 } else if ("isv.MOBILE_NUMBER_ILLEGAL".equals(strings[1])) {

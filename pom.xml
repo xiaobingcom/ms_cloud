@@ -26,6 +26,7 @@
         <swagger.core.version>1.5.24</swagger.core.version>
         <kaptcha.version>2.3.2</kaptcha.version>
         <commons.io.version>2.5</commons.io.version>
+        <aliyun-oss.version>2.5.0</aliyun-oss.version>
 
         <!-- Mybatis -->
         <mybatis-plus.version>3.3.2</mybatis-plus.version>
@@ -83,7 +84,36 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>5.4.4</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>0.9.0</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.4.10</version>
+            </dependency>
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>5.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>4.5.6</version>
+            </dependency>
             <!-- Swagger 依赖配置 -->
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -95,7 +125,12 @@
                 <artifactId>swagger-annotations</artifactId>
                 <version>${swagger.core.version}</version>
             </dependency>
-
+            <!-- 阿里云OSS -->
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun-oss.version}</version>
+            </dependency>
             <!-- Swagger-->
             <dependency>
                 <groupId>io.springfox</groupId>
@@ -231,8 +266,6 @@
         <module>ms-common</module>
         <module>ms-module</module>
         <module>ms-gateway</module>
-        <module>ms-auth</module>
-        <module>ms-job</module>
     </modules>
     <build>
         <plugins>

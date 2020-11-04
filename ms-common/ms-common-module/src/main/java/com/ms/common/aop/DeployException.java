@@ -1,5 +1,6 @@
 package com.ms.common.aop;
 
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.ms.common.core.domain.R;
 import com.ms.common.core.domain.ResultCode;
 import com.ms.common.core.exception.BaseException;
@@ -30,7 +31,7 @@ import java.util.Set;
  * @author xiaobing
  */
 @Slf4j
-//@RestControllerAdvice
+@RestControllerAdvice
 public class DeployException<T> implements ResponseBodyAdvice<T> {
     @Override
     public T beforeBodyWrite(T t, MethodParameter arg1, MediaType arg2, Class<? extends HttpMessageConverter<?>> arg3,
@@ -52,7 +53,12 @@ public class DeployException<T> implements ResponseBodyAdvice<T> {
         if (e instanceof BaseException) {
             response.setStatus(200);
 
-            return R.fail(400, ((BaseException) e).getDefaultMessage());
+            return R.failed(400, ((BaseException) e).getDefaultMessage());
+        }
+        if (e instanceof ApiException) {
+            response.setStatus(200);
+
+            return R.failed(((ApiException) e).getErrorCode(), ((ApiException) e).getMessage());
         }
 
         //参数校验get
@@ -65,7 +71,7 @@ public class DeployException<T> implements ResponseBodyAdvice<T> {
             for (ConstraintViolation<?> item : violations) {
                 sb.append(item.getMessage() + "/");
             }
-            return R.fail(400, "请求参数错误" + sb.toString());
+            return R.failed(400, "请求参数错误" + sb.toString());
         }
 
         //参数校验post
@@ -73,12 +79,13 @@ public class DeployException<T> implements ResponseBodyAdvice<T> {
             response.setStatus(200);
 
             MethodArgumentNotValidException exs = (MethodArgumentNotValidException) e;
+
             BindingResult bindingResult = exs.getBindingResult();
             StringBuffer sb = new StringBuffer();
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 sb.append(fieldError.getDefaultMessage() + "/");
             }
-            return R.fail(400, "请求参数错误" + sb.toString());
+            return R.failed(400, "请求参数错误" + sb.toString());
 
         }
        else if (e instanceof HttpRequestMethodNotSupportedException) {

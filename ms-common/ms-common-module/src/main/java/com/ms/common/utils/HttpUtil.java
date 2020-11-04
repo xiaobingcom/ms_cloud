@@ -1,10 +1,24 @@
 package com.ms.common.utils;
 
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpException;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.springframework.util.MimeType;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
 
 import javax.net.ssl.*;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -12,6 +26,9 @@ import java.net.URLEncoder;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,7 +53,72 @@ public class HttpUtil {
 
     // 默认读取超时时间
     static int default_readtimeout = 10000;
+    private final static String CHARSET_DEFAULT = "UTF-8";
 
+
+    public static String postDoDragonBead(String url) {
+
+        String resultStr = null;
+
+        HttpClient httpClient = new HttpClient();
+        PostMethod method = new PostMethod(url);
+        method.getParams().setContentCharset("utf-8");
+        method.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        try {
+            int result = httpClient.executeMethod(method);
+
+            resultStr = method.getResponseBodyAsString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return resultStr;
+
+    }
+
+    /**
+     * post请求  编码格式默认UTF-8
+     *
+     * @param url 请求url
+     * @return
+     */
+    public static HttpResult doPost(String url, Object obj) {
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        CloseableHttpResponse resp = null;
+
+        HttpResult result = new HttpResult();
+
+        try {
+            Map<String, String> params = objectToMap(obj);
+            HttpPost httpPost = new HttpPost(url);
+
+            if (params != null && params.size() > 0) {
+                List<NameValuePair> list = new ArrayList<NameValuePair>();
+                for (Map.Entry<String, String> entry : params.entrySet()) {
+                    list.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+                }
+                httpPost.setEntity(new UrlEncodedFormEntity(list, CHARSET_DEFAULT));
+            }
+
+            resp = httpClient.execute(httpPost);
+            String body = EntityUtils.toString(resp.getEntity(), CHARSET_DEFAULT);
+            int statusCode = resp.getStatusLine().getStatusCode();
+
+            result.setStatus(statusCode);
+            result.setBody(body);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (null != resp) {
+                try {
+                    resp.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
+    }
 
     public static String postData(String urlStr, String data) {
         return postData(urlStr, data, null);
@@ -184,8 +266,8 @@ public class HttpUtil {
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
 
             e.printStackTrace();
-        }finally {
-            if (fis!=null) {
+        } finally {
+            if (fis != null) {
                 try {
                     fis.close();
                 } catch (IOException e) {
@@ -751,5 +833,32 @@ public class HttpUtil {
         }
 
         return result.toString();
+    }
+
+    /**
+     * 将Object对象里面的属性和值转化成Map对象
+     *
+     * @param obj
+     * @return
+     * @throws IllegalAccessException
+     */
+    public static Map<String, String> objectToMap(Object obj) throws IllegalAccessException {
+        if (obj == null) {
+            return null;
+        }
+        Map<String, String> map = new HashMap<String, String>();
+        Class<?> clazz = obj.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            String fieldValue = "";
+            if (field.getType() == String.class || field.getType() == Integer.class || field.getType() == int.class) {
+                fieldValue = field.get(obj) == null ? "" : field.get(obj).toString();
+            } else {
+                fieldValue = new Gson().toJson(field.get(obj));
+            }
+            map.put(fieldName, fieldValue);
+        }
+        return map;
     }
 }

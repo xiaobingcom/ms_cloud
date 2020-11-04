@@ -17,6 +17,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
+    @Autowired
+    private RedisTemplate<String, Object> objRedisTemplate;
+
+    @Autowired
+    private IgnoreUrlsConfig ignoreUrlsConfig;
+
     //    /**
 //     * 配置允许跨域访问
 //     * @param registry
@@ -35,7 +41,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         //SpringMVC下，拦截器的注册需要排除对静态资源的拦截(*.css,*.js)
         //SpringBoot已经做好了静态资源的映射，因此我们无需任何操作
-        registry.addInterceptor(new MyInterceptor(redisTemplate)).addPathPatterns("/**")
+        registry.addInterceptor(new MyInterceptor(redisTemplate,objRedisTemplate,ignoreUrlsConfig)).addPathPatterns("/**")
                 .excludePathPatterns("/index.html", "/", "/user/login");
     }
 }
